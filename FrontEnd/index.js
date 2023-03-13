@@ -2,6 +2,7 @@
 const response = fetch("http://localhost:5678/api/works")
   .then((res) => res.json())
   .then((data) => {
+    console.log(data);
     return data;
   });
   
@@ -26,6 +27,8 @@ const getCard = async () => {
 
     // LEUR METTRE LES ATTRIBUTS NESSESSAIRE
     imgElt.setAttribute("src", card.imageUrl);
+    figureElt.setAttribute('name',card.category.name);
+    figureElt.setAttribute('categoryid',card.category.id);
     figCaptureElt.textContent = card.title;
 
     // DIRE QUE DEUX DES ELT ON UN PRENT COMMUN
@@ -61,6 +64,18 @@ const getCategory = async () => {
     btn.addEventListener("click", () => {
       btn.style.color = "white";
       btn.style.background = "#1D6154";
+
+      const figureListElt = document.querySelectorAll(".gallery figure");
+      
+      for (const figureElt of figureListElt){
+        const figureCategory = figureElt.getAttribute('categoryid');
+
+        if (parseInt(btn.value) !== parseInt(figureCategory)) {
+          figureElt.style.display = "none";
+        }
+      }
+
+
       console.log(id, name);
     });
 
@@ -80,6 +95,8 @@ const getCategory = async () => {
 
     // si categoryid cartes = 1 au click sur btn1 show img correspondants
   }
+
+  
   //fin de la boucle
   titlePortfolioElt.after(container);
   
