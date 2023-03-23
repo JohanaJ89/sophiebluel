@@ -1,47 +1,88 @@
-/*récuperer données travaux*/
-const response = fetch("http://localhost:5678/api/works")
-  .then((res) => res.json())
-  .then((data) => {
-    console.log(data);
-    return data;
-  });
-  
-const galleryElt = document.querySelector(".gallery");
 
-//suppression des éléments de la galerie
-while (galleryElt.firstChild) {
-  galleryElt.removeChild(galleryElt.firstChild);
+
+
+// Récupère la modale et le bouton pour l'ouvrir
+var modal = document.getElementById("modal");
+var ajouterBtn = document.getElementById("ajouter-element");
+
+// Récupère le formulaire dans la modale
+var form = modal.querySelector("form");
+
+// Fonction pour ajouter un nouvel élément à la galerie
+function ajouterElement(nom, image, description) {
+  
+ 
+var galerie = document.getElementById("galerie");
+ 
+
+// Crée un nouvel élément avec les informations fournies
+  
+ 
+var element = document.createElement("div");
+  
+className = "galerie-element";
+  
+ 
+innerHTML = `
+    <img src="${image}" alt="${nom}">
+    <h3>${nom}</h3>
+    <p>${description}</p>
+  `;
+
+  
+
+ 
+
+
+// Ajoute l'élément à la galerie
+  galerie.target
+  
+
+ 
+appendChild(element);
 }
 
-//récuperer les cartes en attentent de réponse
-const getCard = async () => {
-  const data = await response;
+// Événement pour ouvrir la modale
+ajouterBtn.target
 
-  // la boucle pour récupérer les différentes cartes
-  for (let card of data) {
+addEventListener("click", function() {
+  modal.target
 
-    // CREER LES DIFFERENTS
-    const figureElt = document.createElement("figure");
-    const figCaptureElt = document.createElement("figcaption");
-    const imgElt = document.createElement("img");
 
-    // LEUR METTRE LES ATTRIBUTS NESSESSAIRE
-    imgElt.setAttribute("src", card.imageUrl);
-    figureElt.setAttribute('name',card.category.name);
-    figureElt.setAttribute('categoryid',card.category.id);
-    figCaptureElt.textContent = card.title;
+ 
+modal.style.display = "block";
+});
 
-    // DIRE QUE DEUX DES ELT ON UN PRENT COMMUN
-    figureElt.appendChild(imgElt);
-    figureElt.appendChild(figCaptureElt);
+// Événement pour soumettre le formulaire
+form.target
 
-    // PUIS QUE CE PARENT SOIT LUI MËME L ENFANT DE GALLERY
-    galleryElt.appendChild(figureElt);
+addEventListener("submit", function(e) {
+  e.target
   }
-};
+);
+
+// Sélectionner la modal et le bouton de fermeture
+const closeButton = document.querySelector('.close');
+
+// Fonction pour fermer la modal
+function closeModal() {
+  modal.style.display = 'none';
+}
+
+// Écouter l'événement "click" sur le bouton de fermeture
+closeButton.addEventListener('click', closeModal);
+
+// Écouter l'événement "click" en dehors de la modal pour la fermer
+window.addEventListener('click', (event) => {
+  if (event.target === modal) {
+    closeModal();
+  }
+});
+ 
+preventDefault(e); // Empêche la page de se recharger
 
 
-/*récuperer données catégories*/
+/* récupérer les données de la catégorie */
 const responseCategory = fetch("http://localhost:5678/api/categories")
   .then((res) => res.json())
   .then((data) => {
@@ -51,8 +92,34 @@ const responseCategory = fetch("http://localhost:5678/api/categories")
 const getCategory = async () => {
   const data = await responseCategory;
   console.log(data);
+
+  const galleryElt = document.querySelector(".gallery");
   
-  const btnFactory = (id, name) => {
+  /* fonction pour afficher une image */
+  const showImage = (imageElt) => {
+    imageElt.style.display = "block";
+  };
+  
+  /* fonction pour cacher une image */
+  const hideImage = (imageElt) => {
+    imageElt.style.display = "none";
+  };
+  
+  /* fonction pour afficher les images correspondant à une catégorie */
+  const filterByCategory = (categoryId) => {
+    const images = galleryElt.querySelectorAll("figure");
+    for (let image of images) {
+      /* si la catégorie de l'image correspond à la catégorie sélectionnée ou si la catégorie sélectionnée est "Tous", on affiche l'image, sinon on la cache */
+      if (categoryId === 0 || image.dataset.category === categoryId.toString()) {
+        showImage(image);
+      } else {
+        hideImage(image);
+      }
+    }
+  };
+  
+  /* fonction pour créer un bouton de catégorie */
+  const createCategoryButton = (id, name) => {
     const btn = document.createElement("button");
     btn.textContent = name;
     btn.style.border = "60px solid 1px";
@@ -60,23 +127,24 @@ const getCategory = async () => {
     btn.style.fontFamily = "Syne";
     btn.style.fontWeight = 700;
     btn.value = id;
-
+    /* on ajoute un attribut data-category qui contient l'id de la catégorie */
+    btn.dataset.category = id;
+    
     btn.addEventListener("click", () => {
-      btn.style.color = "white";
-      btn.style.background = "#1D6154";
-
-      const figureListElt = document.querySelectorAll(".gallery figure");
+      /* on filtre les images en fonction de la catégorie sélectionnée */
+      filterByCategory(id);
       
-      for (const figureElt of figureListElt){
-        const figureCategory = figureElt.getAttribute('categoryid');
-
-        if (parseInt(btn.value) !== parseInt(figureCategory)) {
-          figureElt.style.display = "none";
+      /* on met en évidence le bouton sélectionné et on enlève la mise en évidence des autres boutons */
+      const buttons = document.querySelectorAll("#portfolio button");
+      for (let button of buttons) {
+        if (button === btn) {
+          button.style.color = "white";
+          button.style.background = "#1D6154";
+        } else {
+          button.style.color = "#1D6154";
+          button.style.background = "transparent";
         }
       }
-
-
-      console.log(id, name);
     });
 
     return btn;
@@ -84,27 +152,81 @@ const getCategory = async () => {
   
   const titlePortfolioElt = document.querySelector("#portfolio h2");
   const container = document.createElement("div");
-  const btnAll = btnFactory(0, "Tous");
+  const btnAll = createCategoryButton(0, "Tous");
 
   container.appendChild(btnAll);
 
-  //la boucle for
+  /* boucle pour créer les boutons de catégorie */
   for (let category of data) {
-    const btn1 = btnFactory(category.id, category.name);
-    container.appendChild(btn1);
-
-    // si categoryid cartes = 1 au click sur btn1 show img correspondants
+    const btn = createCategoryButton(category.id, category.name);
+    container.appendChild(btn);
   }
 
-  
-  //fin de la boucle
   titlePortfolioElt.after(container);
-  
 };
-//fin de la fonction getCategory
 
-//donne les cartes
-getCard();
+/* récupérer les données des travaux */
+const responseCard = fetch("http://localhost:5678/api/works")
+  .then((res) => res.json())
+  .then((data) => {
+    return data;
+});
 
-//puis donne les categories
-getCategory();
+const getCard = async () => {
+  const data = await responseCard;
+  console.log(data)};
+
+  const galleryElt = document.querySelector(".gallery");
+  
+  /* boucle pour créer les figures correspondant aux cartes */
+  for (let card of data) {
+    const figureElt = document};
+
+    // sélectionne la galerie
+const gallery = document.querySelector(".gallery");
+
+// afficher toutes les cartes initialement
+const showAllCards = () => {
+  gallery.
+ 
+querySelectorAll(".gallery-item").forEach((card) => {
+    card.style.display = "block";
+  });
+};
+
+// filtre les cartes selon la catégorie
+const filterCards = (category) => {
+  gallery.querySelectorAll(".gallery-item").forEach((card) => {
+    if (card.dataset.category === category || category === "all") {
+      card.style.display = "block";
+    } else {
+      card.
+      card
+style.display = "none";
+    }
+  });
+};
+
+
+    
+
+
+// ajoute un événement "click" à chaque bouton de catégorie
+btn.forEach((button) => {
+  button.addEventListener("click", () => {
+    // active le bouton sélectionné et désactive les autres
+    btn.forEach((button) => {
+      button.classList.remove("active");
+    });
+    button.
+   
+classList.add("active");
+
+    // filtre les cartes selon la catégorie sélectionnée
+    const category = button.dataset.category;
+    filterCards(category);
+  });
+});
+
+// affiche toutes les cartes initialement
+showAllCards();
