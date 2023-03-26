@@ -1,0 +1,92 @@
+body {
+  height: 1024px;
+  width: 1440px;
+  left: -3720px;
+  top: -1469px;
+  border-radius: 0px;
+}
+
+.logo {
+  height: 42px;
+  width: 213px;
+  left: -4480px;
+  top: -1897px;
+}
+
+.sophie {
+  height: 26px;
+  width: 213px;
+  left: 0px;
+  top: 0px;
+  font-family: Syne;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 26px;
+  letter-spacing: 0em;
+  text-align: center;
+  color: #b1663c;
+  margin: 0;
+}
+
+.archi {
+  height: 12px;
+  width: 138px;
+  font-family: Work Sans;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 12px;
+  letter-spacing: 0.05em;
+  text-align: center;
+  color: #93532f;
+  margin: 0;
+  margin-left: 25px;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+}
+
+nav ul {
+  display: flex;
+  align-content: space-between;
+  padding: 0;
+}
+
+nav li {
+  align-content: space-between;
+  list-style: none;
+  padding-right: 40px;
+}
+
+#form {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  height: 36px;
+  width: 100px;
+  left: 669px;
+  top: 242px;
+  font-family: Syne;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 36px;
+  letter-spacing: 0em;
+  text-align: center;
+  color: #1d6154;
+}
+
+footer {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  justify-content: flex-start;
+  align-items: flex-end;
+}
