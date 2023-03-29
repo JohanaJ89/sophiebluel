@@ -4,6 +4,14 @@
 // Récupère la modale et le bouton pour l'ouvrir
 var modal = document.getElementById("modal");
 var ajouterBtn = document.getElementById("ajouter-element");
+let token=localStorage.getItem('token');
+console.log(token);
+if(token){
+  ajouterBtn.style.display='block';
+  console.log(token);
+}else{
+ajouterBtn.style.display="none";
+}
 
 // Récupère le formulaire dans la modale
 var form = modal.querySelector("form");
@@ -77,9 +85,10 @@ window.addEventListener('click', (event) => {
   if (event.target === modal) {
     closeModal();
   }
+  event.preventDefault(); // Empêche la page de se recharger
+
 });
  
-preventDefault(e); // Empêche la page de se recharger
 
 
 /* récupérer les données de la catégorie */
@@ -165,16 +174,15 @@ const getCategory = async () => {
   titlePortfolioElt.after(container);
 };
 
-/* récupérer les données des travaux */
-const responseCard = fetch("http://localhost:5678/api/works")
-  .then((res) => res.json())
-  .then((data) => {
-    return data;
-});
 
 const getCard = async () => {
+  
+  /* récupérer les données des travaux */
+  const responseCard = fetch("http://localhost:5678/api/works")
+    .then((res) => res.json());
+
   const data = await responseCard;
-  console.log(data)};
+  console.log(data);
 
   const galleryElt = document.querySelector(".gallery");
   
@@ -187,7 +195,7 @@ const gallery = document.querySelector(".gallery");
 
 // afficher toutes les cartes initialement
 const showAllCards = () => {
-  gallery.
+  gallery
  
 querySelectorAll(".gallery-item").forEach((card) => {
     card.style.display = "block";
@@ -230,3 +238,8 @@ classList.add("active");
 
 // affiche toutes les cartes initialement
 showAllCards();
+}
+
+
+let logElt=document.querySelector('#log li');
+console.log(logElt);

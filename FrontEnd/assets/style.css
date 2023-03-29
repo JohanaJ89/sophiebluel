@@ -130,6 +130,11 @@ h2{
 	font-size: 30px;
 	color: #1D6154
 }
+
+a{
+	text-decoration: none;
+}
+
 nav ul {
 	display: flex;
 	align-items: center;
@@ -139,6 +144,7 @@ nav ul {
 nav li {
 	padding: 0 10px;
 	font-size: 1.2em;
+	
 }
 
 li:hover {

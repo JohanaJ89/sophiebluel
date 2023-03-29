@@ -17,23 +17,22 @@ async function login(username, password) {
   };
 
   const data =  fetch('http://localhost:5678/api/users/login', requestOptions)
-.then((res) => res.json())
-.then((data) => {
-  return data;});
+.then((res) => res.json());
 
   console.log(data);
-const token = await data.token;
+const token = await data;
+console.log(token, 'mom');
 
-if (token){
+if (token.token){
   console.log(token);
   localStorage.setItem('token',token);
-location.href=("/index.html");
+  window.location.href='index.html';
 }
 
 else{
   document.getElementById('message').textContent = "identifiants ou mot de passe incorrects";
   
-}  
+}
 }
 //fin de la fonction login
 
