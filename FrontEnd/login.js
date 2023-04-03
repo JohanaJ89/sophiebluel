@@ -25,7 +25,7 @@ console.log(token, 'mom');
 
 if (token.token){
   console.log(token);
-  localStorage.setItem('token',token);
+  localStorage.setItem('token',token.token);
   window.location.href='index.html';
 }
 
@@ -50,3 +50,4 @@ formElt.addEventListener('submit',(e)=>{
   login(user, mp);
 console.log(e.target);;
 })
+

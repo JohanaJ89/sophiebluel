@@ -1,245 +1,329 @@
+//Code js de la page index.html
 
+//Fonction fetch qui envoie un requête pour récupèrer les données du backend via l'API
+let photoFiltre = []
+async function fetchCard() {
+    const response = await fetch("http://localhost:5678/api/works");
+    photoFiltre = await response.json(); 
+    createCard(photoFiltre);
+    createModaleCard(photoFiltre);
+} 
+fetchCard();
 
+const galleryElt = document.querySelector(".gallery");
 
-// Récupère la modale et le bouton pour l'ouvrir
-var modal = document.getElementById("modal");
-var ajouterBtn = document.getElementById("ajouter-element");
-let token=localStorage.getItem('token');
-console.log(token);
-if(token){
-  ajouterBtn.style.display='block';
-  console.log(token);
-}else{
-ajouterBtn.style.display="none";
-}
-
-// Récupère le formulaire dans la modale
-var form = modal.querySelector("form");
-
-// Fonction pour ajouter un nouvel élément à la galerie
-function ajouterElement(nom, image, description) {
-  
- 
-var galerie = document.getElementById("galerie");
- 
-
-// Crée un nouvel élément avec les informations fournies
-  
- 
-var element = document.createElement("div");
-  
-className = "galerie-element";
-  
- 
-innerHTML = `
-    <img src="${image}" alt="${nom}">
-    <h3>${nom}</h3>
-    <p>${description}</p>
-  `;
-
-  
-
- 
-
-
-// Ajoute l'élément à la galerie
-  galerie.target
-  
-
- 
-appendChild(element);
-}
-
-// Événement pour ouvrir la modale
-ajouterBtn.target
-
-addEventListener("click", function() {
-  modal.target
-
-
- 
-modal.style.display = "block";
-});
-
-// Événement pour soumettre le formulaire
-form.target
-
-addEventListener("submit", function(e) {
-  e.target
+//suppression des éléments de la galerie
+while (galleryElt.firstChild) {
+    galleryElt.removeChild(galleryElt.firstChild);
   }
-);
 
-// Sélectionner la modal et le bouton de fermeture
-const closeButton = document.querySelector('.close');
-
-// Fonction pour fermer la modal
-function closeModal() {
-  modal.style.display = 'none';
-}
-
-// Écouter l'événement "click" sur le bouton de fermeture
-closeButton.addEventListener('click', closeModal);
-
-// Écouter l'événement "click" en dehors de la modal pour la fermer
-window.addEventListener('click', (event) => {
-  if (event.target === modal) {
-    closeModal();
-  }
-  event.preventDefault(); // Empêche la page de se recharger
-
-});
- 
-
-
-/* récupérer les données de la catégorie */
-const responseCategory = fetch("http://localhost:5678/api/categories")
-  .then((res) => res.json())
-  .then((data) => {
-    return data;
-});
-
-const getCategory = async () => {
-  const data = await responseCategory;
-  console.log(data);
-
-  const galleryElt = document.querySelector(".gallery");
-  
-  /* fonction pour afficher une image */
-  const showImage = (imageElt) => {
-    imageElt.style.display = "block";
-  };
-  
-  /* fonction pour cacher une image */
-  const hideImage = (imageElt) => {
-    imageElt.style.display = "none";
-  };
-  
-  /* fonction pour afficher les images correspondant à une catégorie */
-  const filterByCategory = (categoryId) => {
-    const images = galleryElt.querySelectorAll("figure");
-    for (let image of images) {
-      /* si la catégorie de l'image correspond à la catégorie sélectionnée ou si la catégorie sélectionnée est "Tous", on affiche l'image, sinon on la cache */
-      if (categoryId === 0 || image.dataset.category === categoryId.toString()) {
-        showImage(image);
-      } else {
-        hideImage(image);
-      }
+//Fonction pour créer les cartes de la galerie et leur différentes caractéristiques
+function createCard (article) {
+    for (let i = 0; i < article.length; i++){
+        const figureElement = document.createElement("figure");
+        const imageElement = document.createElement("img");
+        imageElement.src = article[i].imageUrl;
+        imageElement.setAttribute("crossorigin", "anonymous") //pour le bug
+        imageElement.setAttribute("alt", article[i].title);
+        const figcaptionElement = document.createElement("figcaption");
+        figcaptionElement.innerText = article[i].title;
+        figureElement.setAttribute("data-id", article[i].id);
+     
+        //DOM pour rattacher les éléments au html
+        document.querySelector(".gallery").appendChild(figureElement);
+        figureElement.appendChild(imageElement);
+        figureElement.appendChild(figcaptionElement);
     }
-  };
-  
-  /* fonction pour créer un bouton de catégorie */
-  const createCategoryButton = (id, name) => {
-    const btn = document.createElement("button");
-    btn.textContent = name;
-    btn.style.border = "60px solid 1px";
-    btn.style.color = "#1D6154";
-    btn.style.fontFamily = "Syne";
-    btn.style.fontWeight = 700;
-    btn.value = id;
-    /* on ajoute un attribut data-category qui contient l'id de la catégorie */
-    btn.dataset.category = id;
-    
-    btn.addEventListener("click", () => {
-      /* on filtre les images en fonction de la catégorie sélectionnée */
-      filterByCategory(id);
-      
-      /* on met en évidence le bouton sélectionné et on enlève la mise en évidence des autres boutons */
-      const buttons = document.querySelectorAll("#portfolio button");
-      for (let button of buttons) {
-        if (button === btn) {
-          button.style.color = "white";
-          button.style.background = "#1D6154";
-        } else {
-          button.style.color = "#1D6154";
-          button.style.background = "transparent";
+};
+
+
+//Fonction pour filtrer la galerie en fonction de leur catégorie
+function boutonFiltrer(filter){
+    let photoFiltred = [];
+    photoFiltred = photoFiltre.filter(photo => photo.category.name.startsWith(filter));
+    document.querySelector(".gallery").innerHTML = "";
+    createCard(photoFiltred);
+    //Si le filtre est "tous", appel de la fonction createCard pour regénérer la galerie complète
+    if(filter === "tous") {createCard(photoFiltre)};
+};
+
+//Couleurs des boutons filtres par rapport au click de l'utilisateur
+const filtre = document.querySelectorAll(".filtre");
+for (let i = 0; i < filtre.length; i++) {
+    const element = filtre[i];
+    element.addEventListener("click", function(e) {
+        //Si le bouton est déjà sélectionné ne rien faire
+        if (e.target.classList.contains("filtre-selected")){
+            return;
         }
-      }
-    });
-
-    return btn;
-  };
-  
-  const titlePortfolioElt = document.querySelector("#portfolio h2");
-  const container = document.createElement("div");
-  const btnAll = createCategoryButton(0, "Tous");
-
-  container.appendChild(btnAll);
-
-  /* boucle pour créer les boutons de catégorie */
-  for (let category of data) {
-    const btn = createCategoryButton(category.id, category.name);
-    container.appendChild(btn);
-  }
-
-  titlePortfolioElt.after(container);
+        //Sinon ajouter la classe "filtre-selected" et retirer cette classe des autres boutons
+        else{
+            const boutons = document.querySelectorAll(".filtre");
+            for(let j = 0; j < boutons.length; j++){
+                boutons[j].classList.remove("filtre-selected");
+            };
+            e.target.classList.add("filtre-selected");
+            boutonFiltrer(e.target.value);
+        }
+    })
 };
 
 
-const getCard = async () => {
-  
-  /* récupérer les données des travaux */
-  const responseCard = fetch("http://localhost:5678/api/works")
-    .then((res) => res.json());
+const token = localStorage.getItem("token");
+//Création évènement "click" sur loginLink ("login")
+const loginLink = document.getElementById("log");
+loginLink.addEventListener("click", () => {
+    //Si le token est stocké, l'utilisateur est connecté (affiche "logout" sur la page d'accueil)
+    if (token !== undefined) {
+        localStorage.removeItem("token");    
+        //window.location.href = "index.html";
 
-  const data = await responseCard;
-  console.log(data);
-
-  const galleryElt = document.querySelector(".gallery");
-  
-  /* boucle pour créer les figures correspondant aux cartes */
-  for (let card of data) {
-    const figureElt = document};
-
-    // sélectionne la galerie
-const gallery = document.querySelector(".gallery");
-
-// afficher toutes les cartes initialement
-const showAllCards = () => {
-  gallery
- 
-querySelectorAll(".gallery-item").forEach((card) => {
-    card.style.display = "block";
-  });
-};
-
-// filtre les cartes selon la catégorie
-const filterCards = (category) => {
-  gallery.querySelectorAll(".gallery-item").forEach((card) => {
-    if (card.dataset.category === category || category === "all") {
-      card.style.display = "block";
-    } else {
-      card.
-      card
-style.display = "none";
+    //sinon le token n'est pas stocké, l'utilisateur n'est pas connecté (affiche "login" sur la page d'accueil)
+    }else{
+        window.location.href = "login.html";
+        loginLink.innerText = "login";
     }
-  });
-};
-
-
-    
-
-
-// ajoute un événement "click" à chaque bouton de catégorie
-btn.forEach((button) => {
-  button.addEventListener("click", () => {
-    // active le bouton sélectionné et désactive les autres
-    btn.forEach((button) => {
-      button.classList.remove("active");
-    });
-    button.
-   
-classList.add("active");
-
-    // filtre les cartes selon la catégorie sélectionnée
-    const category = button.dataset.category;
-    filterCards(category);
-  });
 });
+       
+const modeEditionHeader = document.getElementById('mode-edition');
+modeEditionHeader.style.display = "none";
 
-// affiche toutes les cartes initialement
-showAllCards();
+if (token){
+    modeEditionHeader.style.display = "block";
+    loginLink.innerText = "logout";
+    loginLink.setAttribute("href", "index.html");
 }
 
+//Partie fenêtre modale
+//Fonction pour ouvrir la modale
+const openModale = function (e) {
+    e.preventDefault();
+    modale = document.getElementById("window-modale");
+    modale.style.display = "flex";
+    modale.addEventListener("click", closeModale);
+    modale.querySelector("#cross").addEventListener("click", closeModale);
+    modale.querySelector(".modale").addEventListener("click", stopPropagation);
+};
+//Fonction pour fermer la modale
+const closeModale = function (e) {
+    e.preventDefault();
+    modale.style.display = "none";
+    modale.removeEventListener("click", closeModale);
+    modale.querySelector("#cross").removeEventListener("click", closeModale);
+    modale.querySelector(".modale").removeEventListener("click", stopPropagation);
+    removeImg();
+};
+//pour stopper la propagation de l'événement vers les éléments parents
+const stopPropagation= function (e) {
+    e.stopPropagation();
+};
 
-let logElt=document.querySelector('#log li');
-console.log(logElt);
+document.querySelectorAll(".modifier").forEach(a => {
+    a.addEventListener("click", openModale);
+});
+
+//Fonction pour créer les cartes de la galerie dans la modale
+function createModaleCard (article) {
+    for (let i = 0; i < article.length; i++){
+        const figureElement = document.createElement("figure");
+        const imageElement = document.createElement("img");
+        imageElement.src = article[i].imageUrl;
+        imageElement.setAttribute("crossorigin", "anonymous"); //(pour le bug)
+        imageElement.setAttribute("alt", article[i].title);
+        const trashIcon = document.createElement("i");
+        trashIcon.classList.add("fa-solid", "fa-trash", "icone", "trash");
+        const arrowMoveIcon = document.createElement("i");
+        arrowMoveIcon.classList.add("fa-solid", "fa-arrows-up-down-left-right", "icone", "arrow");
+        const figcaptionElement = document.createElement("figcaption");
+        figcaptionElement.innerText = "éditer";
+        figureElement.setAttribute("data-id", article[i].id);
+        //DOM pour rattacher les éléments au html
+        document.querySelector(".modale-gallery").appendChild(figureElement);
+        figureElement.appendChild(imageElement);
+        figureElement.appendChild(figcaptionElement);
+        figureElement.appendChild(trashIcon);
+        figureElement.appendChild(arrowMoveIcon);
+    }
+};
+
+//Fonction pour interchanger de modale
+const addPhotoButton = document.getElementById("bouton-ajouter");
+addPhotoButton.addEventListener("click", function() {
+    switchModaleView(true);
+});
+const backModaleArrow = document.getElementById("arrow");
+backModaleArrow.addEventListener("click", function() {
+    switchModaleView(false);
+    removeImg();
+});
+
+function switchModaleView(isListeView) {
+    const firstModale = document.getElementById("first-modale");
+    const secondModale = document.getElementById("second-modale");
+    if(isListeView) {
+        secondModale.style.display = "flex"; 
+        firstModale.style.display = "none";
+        backModaleArrow.style.visibility = "visible";
+    }else{
+        secondModale.style.display = "none";
+        firstModale.style.display = "flex";
+        backModaleArrow.style.visibility = "hidden";
+    }
+};
+
+
+//Partie pour ajouter une image dans la galerie
+const newImage = document.getElementById("bouton-search");
+const newImagePreview = document.getElementById("image-preview");
+const newObjetImage = document.getElementById("objet");
+const newTitleImage = document.getElementById("title-image");
+const validButton = document.getElementById("bouton-valider");
+//Fonction pour selectionner l'image
+newImage.addEventListener("change", function() {
+    const selectedFile = newImage.files[0];
+    if (selectedFile) {
+        const imgUrl = URL.createObjectURL(selectedFile);
+        const img = document.createElement("img");
+        img.src = imgUrl;
+        newImagePreview.innerHTML = "";
+        newImagePreview.appendChild(img);
+        //supprime les autres éléments pour qu'il n'y ait que l'image
+        const sendImage = document.getElementsByClassName("send-image");
+        Array.from(sendImage).forEach(e => {e.style.display = "none"});
+        updateButtonColor();
+    }
+});
+
+//Fonction du changement de couleur du bouton valider quand image et titre sont présents
+function updateButtonColor() {
+    if(newTitleImage.value != "" && newImagePreview.firstChild) {
+        validButton.style.backgroundColor = "#1D6154";
+    }else{
+        validButton.style.backgroundColor = "";
+    }
+};
+newTitleImage.addEventListener("input", updateButtonColor)
+
+//Fonction pour "réinitialiser" image + titre + alertes quand on quitte/change la modale   
+function removeImg() {
+    newTitleImage.value = "";
+    const sendImage = document.getElementsByClassName("send-image");
+    const img = newImagePreview.querySelector("img");
+    Array.from(sendImage).forEach(e => {e.style.display = "block"});
+    if(img) {newImagePreview.removeChild(img)}
+    const addImageError = document.getElementById("add-image-error");
+    addImageError.style.display = "none";
+};
+
+validButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    const addImageError = document.getElementById("add-image-error");
+    addImageError.style.display = "flex";
+    addImageError.style.color = "red";
+    // Vérifie si le champ du titre est vide
+    if (newTitleImage.value === "") {
+        addImageError.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Titre manquant`;
+        return;
+    }
+    //Vérifie si le champ image est vide
+    if (!newImagePreview.firstChild) {
+         addImageError.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Image manquante`;
+        return;
+    }
+    //Vérifie la taille de l'image
+    const maxSize = 4 * 1024 * 1024; // 4 Mo en bytes
+    const selectedFile = newImage.files[0];
+    if (selectedFile.size > maxSize) {
+        addImageError.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Taille image supérieur à 4Mo`;
+        return;
+    }
+    updateButtonColor();
+
+    //Création de formData pour envoyer les données de la nouvelle image
+    const formData = new FormData();
+    formData.append("image", newImage.files[0]);
+    formData.append("title", newTitleImage.value);
+    formData.append("category", newObjetImage.value);
+
+    fetch("http://localhost:5678/api/works", {
+        method: "POST",
+        headers: {"Authorization": `Bearer ${token}`},
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+        throw new Error("Erreur de la requête");
+        }
+    })
+    .then(data => {
+        const addImageOk = document.getElementById("add-image-error");
+        addImageOk.innerHTML = `<i class="fa-solid fa-circle-check"></i> Image ajoutée avec succès !`;
+        addImageOk.style.color = "green";
+        dynamicCard();
+    })
+    .catch(error => {
+        console.error("Erreur", error);
+         addImageError.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Erreur lors de l'ajout de l'image`;
+    })
+});
+
+
+//Partie pour supprimer une image de la galerie (au click de la poubelle)
+
+const gallery = document.querySelector(".modale-gallery");
+gallery.addEventListener("click", (e) => {
+    if (e.target.classList.contains("fa-trash")) {
+        const figure = e.target.closest("figure");
+        const dataId = figure.getAttribute("data-id");
+        confirmDelete(figure, dataId);
+    }
+})
+
+//Fonctions pour confirmer/annuler la suppression d'une photo
+function confirmDelete(figure, dataId) {
+    const confirmDelete = document.getElementById("third-modale");
+    confirmDelete.style.display = "flex";
+    const confirmNo = document.getElementById("confirm-no");
+    confirmNo.addEventListener("click", confirmNoClick);
+    const confirmYes = document.getElementById("confirm-yes");
+    confirmYes.addEventListener("click", confirmYesClick);
+    
+    function confirmNoClick() {
+        confirmNo.removeEventListener("click", confirmNoClick);
+        confirmYes.removeEventListener("click", confirmYesClick);
+        confirmDelete.style.display = "none";
+    }
+    function confirmYesClick() {
+        confirmNo.removeEventListener("click", confirmNoClick);
+        confirmYes.removeEventListener("click", confirmYesClick);
+        confirmDelete.style.display = "none";
+        deleteImage(dataId);
+        figure.remove();
+    }
+};
+
+function deleteImage(id) {
+  fetch(`http://localhost:5678/api/works/${id}`, {
+    method: "DELETE",
+    headers: { "Authorization": `Bearer ${token}` }
+  })
+    .then(response => {
+      if (response.ok) {
+        dynamicCard();
+      } else {
+        alert("Erreur lors de la suppression de l'image");
+      }
+    })
+};
+
+//Fonction qui met à jour la galerie de manière dynamique à chaque ajout/suppression d'image
+function dynamicCard() {
+    fetch(`http://localhost:5678/api/works`)
+    .then((response) => {
+        if(response.ok) {
+            document.querySelector(".gallery").innerHTML = "";
+            document.querySelector(".modale-gallery").innerHTML = "";
+            fetchCard();
+        }
+    })
+};
