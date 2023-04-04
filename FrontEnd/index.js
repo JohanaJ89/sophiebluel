@@ -13,39 +13,110 @@ fetchCard();
 const galleryElt = document.querySelector(".gallery");
 
 //suppression des éléments de la galerie
-while (galleryElt.firstChild) {
-    galleryElt.removeChild(galleryElt.firstChild);
-  }
+const cleanGallery = () => {
+    while (galleryElt.firstChild) {
+        galleryElt.removeChild(galleryElt.firstChild);
+    }
+}
 
+cleanGallery();
 //Fonction pour créer les cartes de la galerie et leur différentes caractéristiques
-function createCard (article) {
-    for (let i = 0; i < article.length; i++){
+function createCard (liste) {
+
+    for (article of liste){
         const figureElement = document.createElement("figure");
         const imageElement = document.createElement("img");
-        imageElement.src = article[i].imageUrl;
+        imageElement.src = article.imageUrl;
         imageElement.setAttribute("crossorigin", "anonymous") //pour le bug
-        imageElement.setAttribute("alt", article[i].title);
+        imageElement.setAttribute("alt", article.title);
         const figcaptionElement = document.createElement("figcaption");
-        figcaptionElement.innerText = article[i].title;
-        figureElement.setAttribute("data-id", article[i].id);
+        figcaptionElement.innerText = article.title;
+        figureElement.setAttribute("data-id", article.categoryId);
      
         //DOM pour rattacher les éléments au html
-        document.querySelector(".gallery").appendChild(figureElement);
         figureElement.appendChild(imageElement);
         figureElement.appendChild(figcaptionElement);
+        galleryElt.appendChild(figureElement);
+
     }
 };
 
+/*récuperer données catégories*/
+const responseCategory = fetch("http://localhost:5678/api/categories")
+  .then((res) => res.json())
+  .then((data) => {
+    return data;
+});
 
+const getCategory = async () => {
+  const data = await responseCategory;
+  const createButton = (id, category) => {
+      const btnElt = document.createElement('button');
+      btnElt.classList.add('filtre');
+      btnElt.textContent = category;
+      btnElt.value = id;
+
+      btnElt.addEventListener('click', (e) => {
+        const btnList = document.querySelectorAll('.filtre-selected');
+
+        //si btn du filtre cliqué est différent du filtre actuel
+        if (btnList[0] !== btnElt){
+          btnList[0].classList.remove('filtre-selected');
+
+          if (galleryElt.hasChildNodes()){
+            const btnAll = 0;
+
+            if ( (id === btnAll && photoFiltre.length !== galleryElt.childElementCount) || (photoFiltre.length !== galleryElt.childElementCount) ){
+              cleanGallery();
+              createCard(photoFiltre);
+            }
+  
+            if (id !== btnAll){
+              [...galleryElt.children].forEach((item) => {
+  
+                if (item.dataset.id !== id.toString()) {
+                  item.remove();
+                }
+  
+              });
+            }
+          }
+        }
+  
+        btnElt.classList.add('filtre-selected');
+      })
+
+      return btnElt;
+  };
+
+  const divElt = document.createElement('div');
+  divElt.id = 'filtre-liste';
+
+  const btnAll = createButton(0, 'Tous');
+  btnAll.classList.add('filtre-selected');
+
+  divElt.appendChild(btnAll);
+
+  for (category of data){
+    const btn = createButton(category.id, category.name);
+    divElt.appendChild(btn);
+  }
+
+  galleryElt.before(divElt);
+}
+
+getCategory();
+
+/*
 //Fonction pour filtrer la galerie en fonction de leur catégorie
 function boutonFiltrer(filter){
     let photoFiltred = [];
-    photoFiltred = photoFiltre.filter(photo => photo.category.name.startsWith(filter));
+    photoFiltred = photoFiltre.filter(photo => photo.category.id===categoryId);
     document.querySelector(".gallery").innerHTML = "";
     createCard(photoFiltred);
     //Si le filtre est "tous", appel de la fonction createCard pour regénérer la galerie complète
-    if(filter === "tous") {createCard(photoFiltre)};
-};
+    if(filter === "0") {createCard(photoFiltre)};
+}
 
 //Couleurs des boutons filtres par rapport au click de l'utilisateur
 const filtre = document.querySelectorAll(".filtre");
@@ -59,15 +130,15 @@ for (let i = 0; i < filtre.length; i++) {
         //Sinon ajouter la classe "filtre-selected" et retirer cette classe des autres boutons
         else{
             const boutons = document.querySelectorAll(".filtre");
-            for(let j = 0; j < boutons.length; j++){
-                boutons[j].classList.remove("filtre-selected");
+            for(let i = 0; i < boutons.length; i++){
+                boutons[i].classList.remove("filtre-selected");
             };
             e.target.classList.add("filtre-selected");
             boutonFiltrer(e.target.value);
         }
     })
 };
-
+*/
 
 const token = localStorage.getItem("token");
 //Création évènement "click" sur loginLink ("login")
