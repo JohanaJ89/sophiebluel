@@ -107,38 +107,6 @@ const getCategory = async () => {
 
 getCategory();
 
-/*
-//Fonction pour filtrer la galerie en fonction de leur catégorie
-function boutonFiltrer(filter){
-    let photoFiltred = [];
-    photoFiltred = photoFiltre.filter(photo => photo.category.id===categoryId);
-    document.querySelector(".gallery").innerHTML = "";
-    createCard(photoFiltred);
-    //Si le filtre est "tous", appel de la fonction createCard pour regénérer la galerie complète
-    if(filter === "0") {createCard(photoFiltre)};
-}
-
-//Couleurs des boutons filtres par rapport au click de l'utilisateur
-const filtre = document.querySelectorAll(".filtre");
-for (let i = 0; i < filtre.length; i++) {
-    const element = filtre[i];
-    element.addEventListener("click", function(e) {
-        //Si le bouton est déjà sélectionné ne rien faire
-        if (e.target.classList.contains("filtre-selected")){
-            return;
-        }
-        //Sinon ajouter la classe "filtre-selected" et retirer cette classe des autres boutons
-        else{
-            const boutons = document.querySelectorAll(".filtre");
-            for(let i = 0; i < boutons.length; i++){
-                boutons[i].classList.remove("filtre-selected");
-            };
-            e.target.classList.add("filtre-selected");
-            boutonFiltrer(e.target.value);
-        }
-    })
-};
-*/
 
 const token = localStorage.getItem("token");
 //Création évènement "click" sur loginLink ("login")
